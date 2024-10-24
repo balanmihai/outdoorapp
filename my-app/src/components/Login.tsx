@@ -1,19 +1,33 @@
 // src/components/Login.tsx
-import { signInWithPopup } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { auth, googleProvider } from '../firebase';
+import { signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, googleProvider } from "../firebase";
 
 const Login = () => {
   const navigate = useNavigate();
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate('/');  // Redirect to homepage after login
+      await signInWithRedirect(auth, googleProvider);
     } catch (error) {
-      console.error("Error logging in: ", error);
+      console.error("Error initiating login: ", error);
     }
   };
+
+  useEffect(() => {
+    const fetchRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          navigate("/"); // Redirect to homepage after successful login
+        }
+      } catch (error) {
+        console.error("Error getting redirect result: ", error);
+      }
+    };
+    fetchRedirectResult();
+  }, [navigate]);
 
   return (
     <div className="flex justify-center items-center h-screen">
