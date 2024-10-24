@@ -1,16 +1,14 @@
-// src/components/Login.tsx
 import { signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider } from "../firebase";
-import { browserPopupRedirectResolver } from "firebase/auth";
 
 const Login = () => {
   const navigate = useNavigate();
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithRedirect(auth, googleProvider,browserPopupRedirectResolver);
+      await signInWithRedirect(auth, googleProvider);
     } catch (error) {
       console.error("Error initiating login: ", error);
     }
