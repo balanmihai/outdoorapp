@@ -15,5 +15,8 @@ export interface Trip {
   participants: Participant[];
   authorName: string;
   authorPhoto: string;
-  chatId:string;
+  description?: string;
+  chatId: string;
+  photos: FileList;
+  backgroundPhoto: File;
 }

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+//TripDetail.tsx
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   doc,
@@ -126,6 +127,15 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
     }
   };
 
+  const chatEndRef = useRef<HTMLDivElement | null>(null); // Specify type of the ref
+
+  useEffect(() => {
+    // Scroll to the bottom whenever chatMessages change
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages]);
+
   const handleJoinTrip = async () => {
     if (!user || !trip) return;
 
@@ -144,6 +154,10 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
       });
     }
   };
+
+  useEffect(() => {
+    console.log("plm", trip?.startDate, trip?.endDate);
+  });
 
   const handleUnjoinTrip = async () => {
     if (!user || !trip) return;
@@ -250,31 +264,183 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <p className="text-gray-700">
-          <strong>Start Point:</strong> {trip.startPoint}
-        </p>
-        <p className="text-gray-700">
-          <strong>End Point:</strong> {trip.endPoint}
-        </p>
-        <p className="text-gray-700">
-          <strong>Start Date:</strong> {trip.startDate.toDateString()}
-        </p>
-        <p className="text-gray-700">
-          <strong>End Date:</strong> {trip.endDate.toDateString()}
-        </p>
-        <p className="text-gray-700">
-          <strong>Category:</strong> {trip.category}
-        </p>
-        <p className="text-gray-700">
-          <strong>Difficulty:</strong> {trip.difficulty}
-        </p>
-        <p className="text-gray-700 col-span-2">
-          <strong>Equipment:</strong> {trip.equipment.join(", ")}
-        </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 p-4 bg-white shadow rounded-lg">
+        <div className="flex items-center text-gray-700">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-blue-600 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 2c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zm0 2.938a5.063 5.063 0 100 10.126A5.063 5.063 0 0012 4.938zM12 8a2 2 0 110 4 2 2 0 010-4z"
+            />
+          </svg>
+          <span>
+            <strong>Start:</strong> {trip.startPoint}
+          </span>
+        </div>
+
+        <div className="flex items-center text-gray-700">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-green-600 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9.75 19.75a9.75 9.75 0 100-19.5 9.75 9.75 0 000 19.5zm.75-6V7a3 3 0 016 0v6m0 0v2a2 2 0 11-4 0v-2m2 4a2 2 0 012-2h1a2 2 0 110 4h-1a2 2 0 01-2-2z"
+            />
+          </svg>
+          <span>
+            <strong>End:</strong> {trip.endPoint}
+          </span>
+        </div>
+
+        {trip.startDate.getUTCDate === trip.endDate.getUTCDate ? (
+          <>
+            <div className="flex items-center text-gray-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-orange-600 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 7V3h8v4m-4 0V3m0 0H8m4 0h4M5 21h14M3 8h18M3 16h18"
+                />
+              </svg>
+              <span>
+                <strong>Dayhike:</strong> {trip.startDate.toDateString()}
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center text-gray-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-orange-600 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 7V3h8v4m-4 0V3m0 0H8m4 0h4M5 21h14M3 8h18M3 16h18"
+                />
+              </svg>
+              <span>
+                <strong>Start Date:</strong> {trip.startDate.toDateString()}
+              </span>
+            </div>
+
+            <div className="flex items-center text-gray-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-red-600 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4.5 12.5h15m-15 0v7.75h15V12.5m-10-5.5h5"
+                />
+              </svg>
+              <span>
+                <strong>End Date:</strong> {trip.endDate.toDateString()}
+              </span>
+            </div>
+          </>
+        )}
+
+        <div className="flex items-center text-gray-700">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-purple-600 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v12m0-12C10.333 9 8 10.9 8 13.5S10.333 18 12 18s4-2.9 4-4.5S13.667 9 12 9z"
+            />
+          </svg>
+          <span>
+            <strong>Category:</strong> {trip.category}
+          </span>
+        </div>
+
+        <div className="flex items-center text-gray-700">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-yellow-600 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 6v12m-4-6h8"
+            />
+          </svg>
+          <span>
+            <strong>Difficulty:</strong> {trip.difficulty}
+          </span>
+        </div>
+
+        <div className="flex items-start col-span-2 text-gray-700">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-indigo-600 mr-2 mt-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 20l-5-5 5-5M15 20l5-5-5-5"
+            />
+          </svg>
+          <span>
+            <strong>Equipment: </strong>
+            {trip.equipment.length
+              ? trip.equipment.join(", ")
+              : "Not specified"}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center mb-2 text-gray-700">
+        <span>
+          <strong>Description:</strong>{" "}
+          {trip.description ? trip.description : "No Description"}
+        </span>
       </div>
 
-      {/* Chat Section */}
       {/* Chat Section */}
       {trip.chatId &&
         (trip.participants.some(
@@ -286,8 +452,6 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
               Chat Messages:
             </h3>
             <ul className="space-y-3 mt-4 max-h-64 overflow-y-auto">
-              {" "}
-              {/* Add max height and overflow */}
               {chatMessages
                 .sort(
                   (a, b) => a.createdAt?.toMillis() - b.createdAt?.toMillis()
@@ -304,22 +468,35 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
                   return (
                     <li
                       key={idx}
-                      className={`p-4 rounded-lg shadow-sm ${
-                        isUserMessage
-                          ? "bg-blue-600 text-white ml-auto"
-                          : "bg-gray-100 text-gray-900"
+                      className={`flex ${
+                        isUserMessage ? "justify-end" : "justify-start"
                       }`}
                     >
-                      <div className="flex justify-between">
-                        <strong className="text-sm">{msg.sender}:</strong>
-                        <span className="text-xs text-gray-500">
-                          {messageTime}
-                        </span>
+                      <div
+                        className={`p-4 rounded-lg shadow-sm max-w-xs break-words ${
+                          isUserMessage
+                            ? "bg-blue-600 text-white ml-auto"
+                            : "bg-gray-100 text-gray-900 mr-auto"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <strong className="text-sm mr-2">{msg.sender}</strong>
+                          <span
+                            className={`text-xs text-gray-800 ${
+                              isUserMessage
+                                ? " text-gray-100"
+                                : " text-gray-700"
+                            }`}
+                          >
+                            {messageTime}
+                          </span>
+                        </div>
+                        <div>{msg.text}</div>
                       </div>
-                      <div>{msg.text}</div>
                     </li>
                   );
                 })}
+              <div ref={chatEndRef} />
             </ul>
 
             <div className="flex mt-4">

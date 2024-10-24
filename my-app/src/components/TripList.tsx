@@ -11,6 +11,7 @@ import { db } from "../firebase";
 import { Trip } from "../types/Trip";
 import { Link } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
+import MapComponent from "./MapComponent";
 
 const TripList: React.FC<{ user: any }> = ({ user }) => {
   const [trips, setTrips] = useState<Trip[]>([]);

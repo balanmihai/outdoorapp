@@ -8,6 +8,7 @@ import TripDetail from "./components/TripDetail";
 import { googleProvider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
 import { FiMenu, FiX } from "react-icons/fi"; // Icons for mobile menu
+import MapComponent from "./components/MapComponent";
 
 const App = () => {
   const [user, setUser] = useState<any | null>(null);
@@ -61,6 +62,16 @@ const App = () => {
               Create
             </Link>
           </div>
+
+          <div className="hidden md:flex gap-4">
+            <Link
+              to="/map"
+              className="hover:text-gray-300"
+              onClick={() => setMenuOpen(false)}
+            >
+              Map
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -81,7 +92,7 @@ const App = () => {
                 className="rounded-full w-8 h-8 border-2 border-gray-200"
               />
               <span className="text-sm font-medium">
-                Welcome, {user.displayName || "User"}
+                {user.displayName || "User"}
               </span>
               <button
                 onClick={handleSignOut}
@@ -104,13 +115,19 @@ const App = () => {
       {/* Mobile Menu Links */}
       {menuOpen && (
         <div className="md:hidden bg-gray-700 text-white p-4 flex flex-col gap-4">
-
           <Link
             to="/create"
             className="hover:text-gray-300"
             onClick={() => setMenuOpen(false)}
           >
             Create
+          </Link>
+          <Link
+            to="/map"
+            className="hover:text-gray-300"
+            onClick={() => setMenuOpen(false)}
+          >
+            Map
           </Link>
           {user ? (
             <div className="flex items-center gap-3">
@@ -141,6 +158,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<TripList user={user} />} />
         <Route path="/create" element={<CreateTrip user={user} />} />
+        <Route path="/map" element={<MapComponent />} />
         <Route path="/trip/:id" element={<TripDetail user={user} />} />
       </Routes>
     </>

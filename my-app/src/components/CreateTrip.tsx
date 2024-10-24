@@ -7,6 +7,7 @@ import { signInWithPopup } from "firebase/auth";
 
 const categories = ["Marked Trail", "Unmarked Trail", "Trail Run", "Alpinism"];
 const difficulties = ["Easy", "Moderate", "Hard", "Extreme"];
+const routes = ["Return", "Circuit"];
 
 interface CreateTripProps {
   user: any;
@@ -20,6 +21,10 @@ const CreateTrip = ({ user }: CreateTripProps) => {
   const [endDate, setEndDate] = useState("");
   const [category, setCategory] = useState(categories[0]);
   const [difficulty, setDifficulty] = useState(difficulties[0]);
+  const [routeType, setRouteType] = useState(routes[0]);
+  const [description, setDescription] = useState("");
+  const [photos, setPhotos] = useState<FileList | null>(null);
+  const [backgroundPhoto, setBackgroundPhoto] = useState<File | null>(null);
   const [equipment, setEquipment] = useState<string[]>([]);
   const [equipmentInput, setEquipmentInput] = useState("");
   const navigate = useNavigate();
@@ -61,10 +66,12 @@ const CreateTrip = ({ user }: CreateTripProps) => {
       tripName,
       startPoint,
       endPoint,
-      startDate: start, // Store as Date object
-      endDate: end, // Store as Date object
+      startDate: start,
+      endDate: end,
       category,
       difficulty,
+      routeType,
+      description,
       equipment,
       author: {
         uid: user.uid,
@@ -74,20 +81,14 @@ const CreateTrip = ({ user }: CreateTripProps) => {
       authorPhoto: user.photoURL,
       participants: [], // Initialize participants as an empty array
       createdAt: new Date(),
+      // Upload photos and backgroundPhoto to storage and save URLs in Firestore
     };
 
     try {
       // Add the new trip to the 'trips' collection in Firestore
-      const tripDocRef = await addDoc(collection(db, "trips"), newTrip);
+      await addDoc(collection(db, "trips"), newTrip);
 
-      // Create a chat document associated with this trip
-      await addDoc(collection(db, "chats"), {
-        tripId: tripDocRef.id, // Reference to the trip ID
-        participants: [], // Initialize with an empty array of participants
-        messages: [], // Initialize with an empty array of messages
-      });
-
-      alert("Trip and chat created successfully!");
+      alert("Trip created successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -115,7 +116,7 @@ const CreateTrip = ({ user }: CreateTripProps) => {
           />
         </div>
 
-        {/* Start Point */}
+        {/* Start and End Points */}
         <div className="flex gap-2">
           <div className="mb-6 w-full">
             <label className="block text-lg font-semibold text-gray-700 mb-2">
@@ -131,7 +132,6 @@ const CreateTrip = ({ user }: CreateTripProps) => {
             />
           </div>
 
-          {/* End Point */}
           <div className="mb-6 w-full">
             <label className="block text-lg font-semibold text-gray-700 mb-2">
               End Point
@@ -147,7 +147,7 @@ const CreateTrip = ({ user }: CreateTripProps) => {
           </div>
         </div>
 
-        {/* Start Date */}
+        {/* Start and End Dates */}
         <div className="flex gap-2">
           <div className="mb-6 w-full">
             <label className="block text-lg font-semibold text-gray-700 mb-2">
@@ -162,7 +162,6 @@ const CreateTrip = ({ user }: CreateTripProps) => {
             />
           </div>
 
-          {/* End Date */}
           <div className="mb-6 w-full">
             <label className="block text-lg font-semibold text-gray-700 mb-2">
               End Date
@@ -177,26 +176,65 @@ const CreateTrip = ({ user }: CreateTripProps) => {
           </div>
         </div>
 
-        {/* Category */}
+        {/* Description */}
         <div className="mb-6">
           <label className="block text-lg font-semibold text-gray-700 mb-2">
-            Category
+            Description
           </label>
-          <select
+          <textarea
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
-            <option value="" disabled>
-              Select category
-            </option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter trip description (optional)"
+          />
+        </div>
+
+        {/* Photos */}
+        <div className="mb-6">
+          <label className="block text-lg font-semibold text-gray-700 mb-2">
+            Photos (optional)
+          </label>
+          <input
+            type="file"
+            multiple
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            onChange={(e) => setPhotos(e.target.files)}
+          />
+        </div>
+
+        {/* Background Photo */}
+        <div className="mb-6">
+          <label className="block text-lg font-semibold text-gray-700 mb-2">
+            Background Photo (optional)
+          </label>
+          <input
+            type="file"
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            onChange={(e) => setBackgroundPhoto(e.target.files?.[0] || null)}
+          />
+        </div>
+
+        {/* Route Type */}
+        <div className="mb-6">
+          <label className="block text-lg font-semibold text-gray-700 mb-2">
+            Route Type
+          </label>
+          <div className="flex space-x-4">
+            {routes.map((route) => (
+              <label key={route} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="route"
+                  value={route}
+                  checked={routeType === route}
+                  onChange={(e) => setRouteType(e.target.value)}
+                  required
+                  className="focus:ring-2 focus:ring-blue-400"
+                />
+                <span>{route}</span>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
 
         {/* Difficulty */}
@@ -244,7 +282,6 @@ const CreateTrip = ({ user }: CreateTripProps) => {
             </button>
           </div>
 
-          {/* Display Added Equipment */}
           {equipment.length > 0 && (
             <ul className="list-disc pl-5 space-y-1">
               {equipment.map((item, index) => (
@@ -263,7 +300,6 @@ const CreateTrip = ({ user }: CreateTripProps) => {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition"
