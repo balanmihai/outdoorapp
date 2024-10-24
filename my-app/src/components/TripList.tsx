@@ -130,7 +130,7 @@ const TripList: React.FC<{ user: any }> = ({ user }) => {
   return (
     <div className="max-w-6xl mx-auto p-8">
       <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-6 text-center">
-        Tripurile mele
+        Aventurierii Pizdi
       </h2>
 
       {/* Search Bar */}
