@@ -8,7 +8,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { Participant, Trip } from "../types/Trip";
+import { Trip } from "../types/Trip";
 import { Link } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
 
