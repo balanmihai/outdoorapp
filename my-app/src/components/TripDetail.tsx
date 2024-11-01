@@ -23,7 +23,18 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [editTrip, setEditTrip] = useState({
+    tripName: "",
+    description: "",
+    startDate: new Date(),
+    endDate: new Date(),
+    startPoint: "",
+    endPoint: "",
+    category: "",
+    difficulty: "",
+  });
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -43,6 +54,17 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
             participants,
             chatId: data.chatId || null,
           } as Trip);
+
+          setEditTrip({
+            tripName: data.tripName || "",
+            description: data.description || "",
+            startDate: startDate,
+            endDate: endDate,
+            startPoint: data.startPoint || "",
+            endPoint: data.endPoint || "",
+            category: data.category || "",
+            difficulty: data.difficulty || "",
+          });
         } else {
           console.error("Trip not found");
         }
@@ -51,6 +73,35 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
 
     fetchTrip();
   }, [id]);
+
+  const openEditModal = () => setIsEditModalOpen(true);
+  const closeEditModal = () => setIsEditModalOpen(false);
+
+  const handleEditTrip = async () => {
+    if (!trip || !trip.id) return;
+
+    const tripRef = doc(db, "trips", trip.id);
+    await updateDoc(tripRef, {
+      tripName: editTrip.tripName,
+      description: editTrip.description,
+      startDate: Timestamp.fromDate(new Date(editTrip.startDate)),
+      endDate: Timestamp.fromDate(new Date(editTrip.endDate)),
+      startPoint: editTrip.startPoint,
+      endPoint: editTrip.endPoint,
+      category: editTrip.category,
+      difficulty: editTrip.difficulty,
+    });
+
+    setTrip(
+      (prevTrip) =>
+        ({
+          ...prevTrip,
+          ...editTrip,
+        } as Trip)
+    );
+
+    closeEditModal();
+  };
 
   // Real-time listeners for participants and chat
   useEffect(() => {
@@ -212,6 +263,12 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
                   Create Chat
                 </button>
               )}
+              <button
+                onClick={openEditModal}
+                className="w-full md:w-auto bg-blue-600 text-white py-3 px-6 rounded-xl shadow-md hover:bg-blue-700 transition-all"
+              >
+                Edit Trip
+              </button>
 
               {/* Delete Button */}
               <button
@@ -440,6 +497,106 @@ const TripDetail: React.FC<{ user: any }> = ({ user }) => {
           {trip.description ? trip.description : "No Description"}
         </span>
       </div>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onRequestClose={closeEditModal}
+        className="flex items-center justify-center fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+          <h2 className="text-xl font-semibold mb-4 text-center">Edit Trip</h2>
+          <div className="flex flex-col space-y-4">
+            <input
+              type="text"
+              value={editTrip.tripName}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, tripName: e.target.value })
+              }
+              placeholder="Trip Name"
+              className="border p-2 rounded-lg"
+            />
+            <textarea
+              value={editTrip.description}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, description: e.target.value })
+              }
+              placeholder="Description"
+              className="border p-2 rounded-lg"
+            />
+            <input
+              type="date"
+              value={editTrip.startDate.toISOString().split("T")[0]}
+              onChange={(e) =>
+                setEditTrip({
+                  ...editTrip,
+                  startDate: new Date(e.target.value),
+                })
+              }
+              className="border p-2 rounded-lg"
+            />
+            <input
+              type="date"
+              value={editTrip.endDate.toISOString().split("T")[0]}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, endDate: new Date(e.target.value) })
+              }
+              className="border p-2 rounded-lg"
+            />
+            <input
+              type="text"
+              value={editTrip.startPoint}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, startPoint: e.target.value })
+              }
+              placeholder="Start Point"
+              className="border p-2 rounded-lg"
+            />
+            <input
+              type="text"
+              value={editTrip.endPoint}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, endPoint: e.target.value })
+              }
+              placeholder="End Point"
+              className="border p-2 rounded-lg"
+            />
+            <input
+              type="text"
+              value={editTrip.category}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, category: e.target.value })
+              }
+              placeholder="Category"
+              className="border p-2 rounded-lg"
+            />
+            <input
+              type="text"
+              value={editTrip.difficulty}
+              onChange={(e) =>
+                setEditTrip({ ...editTrip, difficulty: e.target.value })
+              }
+              placeholder="Difficulty"
+              className="border p-2 rounded-lg"
+            />
+            <div className="flex justify-around mt-6">
+              <button
+                onClick={handleEditTrip}
+                className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition-all"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={closeEditModal}
+                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg shadow hover:bg-gray-400 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </Modal>
 
       {/* Chat Section */}
       {trip.chatId &&
